@@ -3,7 +3,7 @@ package dad.javafx.geofx.service;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import dad.javafx.geofx.GeoModel;
+import dad.javafx.geofx.Geolocation;
 
 public class IPAPIService {
 
@@ -13,11 +13,11 @@ public class IPAPIService {
 		Unirest.setObjectMapper(new UnirestObjectMapper());
 	}
 
-	public GeoModel ipData(String ip) throws Exception {
-		GeoModel geo = new GeoModel();
+	public Geolocation ipData(String ip) throws Exception {
+		Geolocation geo = new Geolocation();
 		try {
 			geo = Unirest.get("http://api.ipapi.com/" + ip + "?access_key=" + apiKey + "&format=1")
-					.asObject(GeoModel.class).getBody();
+					.asObject(Geolocation.class).getBody();
 			if (!geo.isSuccess()) {
 				throw new Exception("No se ha podido conectar a la API");
 			}

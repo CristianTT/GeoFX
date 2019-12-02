@@ -1,9 +1,6 @@
 package dad.javafx.geofx;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -40,7 +37,7 @@ public class GeoController implements Initializable {
 
 	IPIFYService IpService = new IPIFYService();
 	IPAPIService GeoService = new IPAPIService();
-	GeoModel model = new GeoModel();
+	GeoModel model;;
 
 	public GeoController() throws IOException {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GeoView.fxml"));
@@ -52,7 +49,7 @@ public class GeoController implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		try {
 			ipText.setText(IpService.getMyIp());
-			this.checkIpAction(null);
+			model = new GeoModel(GeoService.ipData(ipText.getText()));
 		} catch (Exception e) {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("GeoFX");
@@ -62,22 +59,22 @@ public class GeoController implements Initializable {
 			e.printStackTrace();
 		}
 		
-		/*
 		// Bindings
 		ipLocation.textProperty().bind(
-				Bindings.concat(model.country_nameProperty(), " (", model.country_codeProperty(), ")"));
-		latitude.textProperty().bindBidirectional(model.latitudeProperty(), new NumberStringConverter());
-		longitude.textProperty().bindBidirectional(model.longitudeProperty(), new NumberStringConverter());
-		city.textProperty().bindBidirectional(model.cityProperty());
-		//language.textProperty().bind(model.locationProperty().get().languagesProperty());
-		//callingCode.textProperty().bind(model.locationProperty().get().callingCodeProperty());
-		zipCode.textProperty().bindBidirectional(model.zipProperty());
-		ipAddress.textProperty().bindBidirectional(model.ipProperty());
-		type.textProperty().bindBidirectional(model.typeProperty());
-		//ipLocationImage.imageProperty().bind(Bindings.createObjectBinding(() -> {
-		//	return new Image(model.locationProperty().get().countryFlagProperty().get());
-		//}, model.locationProperty().get().countryFlagProperty()));
-		 */
+				Bindings.concat(model.geolocationProperty().get().country_nameProperty(), " (", model.geolocationProperty().get().country_codeProperty(), ")"));
+		latitude.textProperty().bindBidirectional(model.geolocationProperty().get().latitudeProperty(), new NumberStringConverter());
+		longitude.textProperty().bindBidirectional(model.geolocationProperty().get().longitudeProperty(), new NumberStringConverter());
+		city.textProperty().bindBidirectional(model.geolocationProperty().get().cityProperty());
+		language.textProperty().bind(Bindings.createObjectBinding(() -> {
+			return model.geolocationProperty().get().locationProperty().get().languagesProperty().get(0).getName();
+		}, model.geolocationProperty().get().locationProperty().get().languagesProperty()));
+		callingCode.textProperty().bind(model.geolocationProperty().get().locationProperty().get().calling_codeProperty());
+		zipCode.textProperty().bindBidirectional(model.geolocationProperty().get().zipProperty());
+		ipAddress.textProperty().bindBidirectional(model.geolocationProperty().get().ipProperty());
+		type.textProperty().bindBidirectional(model.geolocationProperty().get().typeProperty());
+		ipLocationImage.imageProperty().bind(Bindings.createObjectBinding(() -> {
+			return new Image("/images/flags/" + model.geolocationProperty().get().getCountry_code() + ".png", true);
+		}, model.geolocationProperty().get().country_codeProperty()));
 	}
 
 	public AnchorPane getView() {
@@ -87,10 +84,10 @@ public class GeoController implements Initializable {
 	@FXML
 	void checkIpAction(ActionEvent event) {
 		try {
-			model = GeoService.ipData(ipText.getText());
+			model.setGeolocation(GeoService.ipData(ipText.getText()));
 			
 			// Setter
-			ipLocation.setText(model.getCountry_name() + " (" + model.getCountry_code() + ")");
+			/*ipLocation.setText(model.getCountry_name() + " (" + model.getCountry_code() + ")");
 			latitude.setText("" + model.getLatitude());
 			longitude.setText("" + model.getLongitude());
 			city.setText(model.getCity());
@@ -99,8 +96,8 @@ public class GeoController implements Initializable {
 			zipCode.setText(model.getZip());
 			ipAddress.setText(model.getIp());
 			type.setText(model.getType());
-			Image i = new Image(model.getLocation().getCountry_flag(), true);
-			ipLocationImage.setImage(i);
+			Image i = new Image("/images/flags/" + model.getCountry_code() + ".png", true);
+			ipLocationImage.setImage(i);*/
 		} catch (Exception e) {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("GeoFX");
